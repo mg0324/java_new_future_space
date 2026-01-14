@@ -1,562 +1,336 @@
-# Java 8 新特性总结
+# Java 新特性总览
 
-Java 8 是一个划时代的版本，引入了许多革命性的特性，改变了Java开发的方式。本文档总结了Java 8的主要新特性。
+## Java 8 新特性
 
-## 1. Lambda 表达式
+### 1. Lambda 表达式
+Lambda 表达式是 Java 8 最重要的特性之一，它允许用简洁的方式定义匿名函数。
 
-Lambda表达式是Java 8最重要的特性，提供了一种简洁的函数式编程方式。
+**语法：** `(parameters) -> expression` 或 `(parameters) -> { statements }`
 
-### 语法
+**示例：**
 ```java
-(parameters) -> { body }
-```
-
-### 示例
-```java
-// 传统方式
-Comparator<Integer> comp = new Comparator<Integer>() {
+// 传统写法
+Comparator<Integer> comparator1 = new Comparator<Integer>() {
     @Override
     public int compare(Integer o1, Integer o2) {
         return o1.compareTo(o2);
     }
 };
 
-// Lambda表达式
-Comparator<Integer> comp = (o1, o2) -> o1.compareTo(o2);
-
-// 排序列表
-List<Integer> numbers = Arrays.asList(3, 1, 4, 1, 5);
-numbers.sort((a, b) -> a.compareTo(b));
+// Lambda 写法
+Comparator<Integer> comparator2 = (o1, o2) -> o1.compareTo(o2);
 ```
 
-### 优点
-- 代码简洁，可读性强
-- 减少匿名内部类的冗余
-- 支持函数式编程风格
+### 2. 函数式接口（Functional Interface）
+函数式接口是只有一个抽象方法的接口，可以使用 Lambda 表达式实现。
 
-## 2. 函数式接口（Functional Interfaces）
+**常见函数式接口：**
+- `java.util.function.Function<T, R>` - 接收一个参数，返回一个结果
+- `java.util.function.Consumer<T>` - 接收一个参数，无返回值
+- `java.util.function.Supplier<T>` - 无参数，返回一个结果
+- `java.util.function.Predicate<T>` - 接收一个参数，返回 boolean
 
-函数式接口是只有一个抽象方法的接口，Lambda表达式可以实现函数式接口。
-
-### 核心函数式接口
-
-#### Function<T, R>
+**示例：**
 ```java
-Function<String, Integer> strLength = str -> str.length();
-System.out.println(strLength.apply("hello")); // 5
+Function<String, Integer> function = s -> s.length();
+System.out.println(function.apply("hello")); // 输出: 5
+
+Predicate<Integer> predicate = x -> x > 10;
+System.out.println(predicate.test(15)); // 输出: true
 ```
 
-#### Predicate<T>
+### 3. Stream API
+Stream API 提供了一种高效、优雅的方式来处理集合数据，支持函数式编程风格。
+
+**主要特点：**
+- 允许以声明性方式处理数据集合
+- 支持并行处理（Parallel Stream）
+- 支持链式调用
+
+**常见操作：**
+- **中间操作**：`filter`、`map`、`flatMap`、`distinct`、`sorted` 等（返回 Stream）
+- **终端操作**：`collect`、`forEach`、`reduce`、`count` 等（返回非 Stream）
+
+**示例：**
 ```java
-Predicate<String> isEmpty = str -> str.isEmpty();
-System.out.println(isEmpty.test("")); // true
-```
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
 
-#### Consumer<T>
-```java
-Consumer<String> print = str -> System.out.println(str);
-print.accept("Hello");
-```
+// 找出所有偶数，平方后求和
+int result = numbers.stream()
+    .filter(n -> n % 2 == 0)
+    .map(n -> n * n)
+    .reduce(0, Integer::sum);
+System.out.println(result); // 输出: 56
 
-#### Supplier<T>
-```java
-Supplier<String> supplier = () -> "Hello";
-System.out.println(supplier.get());
-```
-
-#### BiFunction<T, U, R>
-```java
-BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
-System.out.println(add.apply(5, 3)); // 8
-```
-
-## 3. Stream API
-
-Stream API 提供了一种函数式的、链式的数据处理方式。
-
-### 基本操作
-
-#### 创建Stream
-```java
-List<String> list = Arrays.asList("a", "b", "c");
-Stream<String> stream = list.stream();
-
-// 并行流
-Stream<String> parallelStream = list.parallelStream();
-
-// 从数组创建
-Stream<String> stream2 = Arrays.stream(new String[]{"a", "b"});
-```
-
-#### 中间操作（Intermediate Operations）
-
-**filter** - 过滤
-```java
-list.stream()
-    .filter(s -> s.length() > 1)
+// 并行流处理
+numbers.parallelStream()
+    .filter(n -> n > 3)
     .forEach(System.out::println);
 ```
 
-**map** - 映射
+### 4. 方法引用（Method Reference）
+方法引用是一种更加简洁的 Lambda 表达式形式。
+
+**四种方式：**
+1. **静态方法引用**：`ClassName::staticMethodName`
+2. **实例方法引用**：`instance::methodName`
+3. **类的任意对象的实例方法引用**：`ClassName::methodName`
+4. **构造方法引用**：`ClassName::new`
+
+**示例：**
 ```java
-list.stream()
-    .map(String::toUpperCase)
-    .forEach(System.out::println);
-```
+// 静态方法引用
+Function<String, Integer> function = Integer::parseInt;
+System.out.println(function.apply("123")); // 输出: 123
 
-**flatMap** - 扁平化映射
-```java
-List<List<String>> lists = Arrays.asList(
-    Arrays.asList("a", "b"),
-    Arrays.asList("c", "d")
-);
-lists.stream()
-    .flatMap(Collection::stream)
-    .forEach(System.out::println); // a, b, c, d
-```
-
-**sorted** - 排序
-```java
-list.stream()
-    .sorted()
-    .forEach(System.out::println);
-
-list.stream()
-    .sorted((s1, s2) -> s2.compareTo(s1)) // 降序
-    .forEach(System.out::println);
-```
-
-**distinct** - 去重
-```java
-Arrays.asList(1, 2, 2, 3, 3, 3).stream()
-    .distinct()
-    .forEach(System.out::println); // 1, 2, 3
-```
-
-**limit** - 限制数量
-```java
-list.stream()
-    .limit(2)
-    .forEach(System.out::println);
-```
-
-**skip** - 跳过数量
-```java
-list.stream()
-    .skip(1)
-    .forEach(System.out::println);
-```
-
-#### 终端操作（Terminal Operations）
-
-**forEach** - 遍历
-```java
-list.stream().forEach(System.out::println);
-```
-
-**collect** - 收集
-```java
-List<String> result = list.stream()
-    .filter(s -> s.length() > 0)
-    .collect(Collectors.toList());
-
-// 转为Set
-Set<String> set = list.stream()
-    .collect(Collectors.toSet());
-
-// 转为String，用逗号分隔
-String str = list.stream()
-    .collect(Collectors.joining(","));
-```
-
-**reduce** - 归约
-```java
-int sum = Arrays.asList(1, 2, 3, 4).stream()
-    .reduce(0, (a, b) -> a + b);
-
-Optional<Integer> sum2 = Arrays.asList(1, 2, 3).stream()
-    .reduce((a, b) -> a + b);
-```
-
-**match** - 匹配
-```java
-// 全部匹配
-boolean allMatch = list.stream().allMatch(s -> s.length() > 0);
-
-// 任意匹配
-boolean anyMatch = list.stream().anyMatch(s -> s.length() > 1);
-
-// 都不匹配
-boolean noneMatch = list.stream().noneMatch(s -> s.length() > 10);
-```
-
-**find** - 查找
-```java
-Optional<String> first = list.stream().findFirst();
-Optional<String> any = list.stream().findAny();
-```
-
-**count** - 计数
-```java
-long count = list.stream().count();
-```
-
-**min/max** - 最小/最大值
-```java
-Optional<String> max = list.stream()
-    .max(String::compareTo);
-```
-
-## 4. 方法引用（Method References）
-
-方法引用是Lambda表达式的简化形式。
-
-### 四种类型
-
-#### 1. 静态方法引用
-```java
-// Lambda表达式
-Function<String, Integer> func = str -> Integer.parseInt(str);
-
-// 方法引用
-Function<String, Integer> func2 = Integer::parseInt;
-```
-
-#### 2. 实例方法引用
-```java
+// 实例方法引用
 String str = "hello";
+Consumer<String> consumer = System.out::println;
+consumer.accept(str); // 输出: hello
 
-// Lambda表达式
-Function<String, Boolean> func = s -> str.contains(s);
-
-// 方法引用
-Function<String, Boolean> func2 = str::contains;
+// 构造方法引用
+Supplier<List<String>> supplier = ArrayList::new;
+List<String> list = supplier.get();
 ```
 
-#### 3. 任意对象的实例方法引用
-```java
-// Lambda表达式
-Function<String, Integer> func = str -> str.length();
-
-// 方法引用
-Function<String, Integer> func2 = String::length;
-```
-
-#### 4. 构造器引用
-```java
-// Lambda表达式
-Supplier<List> supplier = () -> new ArrayList();
-
-// 方法引用
-Supplier<List> supplier2 = ArrayList::new;
-```
-
-## 5. Optional 类
-
-Optional 用于优雅地处理null值。
-
-### 基本使用
-```java
-// 创建Optional
-Optional<String> opt1 = Optional.of("hello");
-Optional<String> opt2 = Optional.ofNullable(null);
-Optional<String> opt3 = Optional.empty();
-
-// 检查值是否存在
-if (opt1.isPresent()) {
-    System.out.println(opt1.get());
-}
-
-// 使用ifPresent
-opt1.ifPresent(System.out::println);
-
-// 使用ifPresentOrElse (Java 9)
-opt1.ifPresentOrElse(
-    System.out::println,
-    () -> System.out.println("Value not present")
-);
-```
-
-### 操作Optional
-```java
-// map - 转换值
-Optional<Integer> length = Optional.of("hello")
-    .map(String::length);
-
-// flatMap - 扁平化映射
-Optional<String> opt = Optional.of("hello")
-    .flatMap(str -> Optional.of(str.toUpperCase()));
-
-// filter - 过滤
-Optional<String> opt2 = Optional.of("hello")
-    .filter(str -> str.length() > 3);
-
-// orElse - 提供默认值
-String result = Optional.ofNullable(null)
-    .orElse("default");
-
-// orElseGet - 延迟获取默认值
-String result2 = Optional.ofNullable(null)
-    .orElseGet(() -> "default");
-
-// orElseThrow - 不存在时抛出异常
-String result3 = Optional.ofNullable(null)
-    .orElseThrow(NullPointerException::new);
-```
-
-## 6. 日期和时间API（java.time）
-
-Java 8 引入了全新的日期和时间API，解决了旧版Date和Calendar的问题。
-
-### 主要类
-
-#### LocalDate - 日期（不含时间）
-```java
-// 获取当前日期
-LocalDate today = LocalDate.now();
-
-// 指定日期
-LocalDate date = LocalDate.of(2023, 12, 25);
-
-// 解析字符串
-LocalDate date2 = LocalDate.parse("2023-12-25");
-
-// 日期操作
-LocalDate tomorrow = today.plusDays(1);
-LocalDate nextMonth = today.plusMonths(1);
-LocalDate nextYear = today.plusYears(1);
-
-// 获取信息
-int day = today.getDayOfMonth();
-int month = today.getMonthValue();
-int year = today.getYear();
-```
-
-#### LocalTime - 时间（不含日期）
-```java
-// 获取当前时间
-LocalTime now = LocalTime.now();
-
-// 指定时间
-LocalTime time = LocalTime.of(15, 30, 0);
-
-// 解析字符串
-LocalTime time2 = LocalTime.parse("15:30:00");
-
-// 时间操作
-LocalTime later = now.plusHours(2);
-```
-
-#### LocalDateTime - 日期和时间
-```java
-// 获取当前日期时间
-LocalDateTime now = LocalDateTime.now();
-
-// 指定日期时间
-LocalDateTime dateTime = LocalDateTime.of(2023, 12, 25, 15, 30);
-
-// 解析字符串
-LocalDateTime dateTime2 = LocalDateTime.parse("2023-12-25T15:30:00");
-
-// 转换
-LocalDate date = dateTime.toLocalDate();
-LocalTime time = dateTime.toLocalTime();
-```
-
-#### ZonedDateTime - 带时区的日期时间
-```java
-// 获取当前日期时间（带时区）
-ZonedDateTime now = ZonedDateTime.now();
-
-// 指定时区
-ZonedDateTime now2 = ZonedDateTime.now(ZoneId.of("Asia/Shanghai"));
-
-// 时区转换
-ZonedDateTime tokyo = now.withZoneSameInstant(ZoneId.of("Asia/Tokyo"));
-```
-
-#### Duration - 时间段
-```java
-// 创建Duration
-Duration d1 = Duration.ofHours(2);
-Duration d2 = Duration.ofMinutes(30);
-Duration d3 = Duration.between(time1, time2);
-
-// Duration操作
-long hours = d1.toHours();
-long minutes = d1.toMinutes();
-```
-
-#### Period - 日期段
-```java
-// 创建Period
-Period p1 = Period.ofDays(10);
-Period p2 = Period.ofMonths(3);
-Period p3 = Period.between(date1, date2);
-
-// Period操作
-int days = p1.getDays();
-```
-
-#### DateTimeFormatter - 日期时间格式化
-```java
-// 预定义格式
-DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-
-// 自定义格式
-DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-// 格式化
-String str = now.format(formatter2); // 2023-12-25 15:30:00
-
-// 解析
-LocalDateTime dateTime = LocalDateTime.parse("2023-12-25 15:30:00", formatter2);
-```
-
-## 7. 接口的默认方法和静态方法
-
+### 5. 接口默认方法（Default Method）和静态方法
 Java 8 允许在接口中定义默认方法和静态方法。
 
-### 默认方法
+**示例：**
 ```java
 interface Animal {
-    void eat();
-    
     // 默认方法
-    default void sleep() {
-        System.out.println("Animal is sleeping");
+    default void eat() {
+        System.out.println("Animal is eating");
+    }
+    
+    // 静态方法
+    static void staticMethod() {
+        System.out.println("Static method in interface");
     }
 }
 
 class Dog implements Animal {
-    @Override
-    public void eat() {
-        System.out.println("Dog is eating");
-    }
-    
-    // 可以选择重写或继承默认方法
+    // 可以不实现 eat() 方法，直接使用默认实现
 }
 ```
 
-### 静态方法
-```java
-interface Animal {
-    static void staticMethod() {
-        System.out.println("Static method");
-    }
-}
+### 6. Optional 类
+`Optional` 是一个容器类，用于处理可能为 null 的值，能有效地减少 NullPointerException。
 
-// 调用静态方法
-Animal.staticMethod();
+**常见方法：**
+- `Optional.of(T value)` - 创建一个包含非空值的 Optional
+- `Optional.ofNullable(T value)` - 创建一个 Optional，可以包含 null
+- `isPresent()` - 检查值是否存在
+- `get()` - 获取值（如果值不存在则抛出异常）
+- `getOrElse(T other)` - 获取值或返回默认值
+- `map(Function<T, U> mapper)` - 对值进行转换
+- `filter(Predicate<T> predicate)` - 对值进行过滤
+
+**示例：**
+```java
+Optional<String> optional = Optional.of("Hello");
+System.out.println(optional.isPresent()); // 输出: true
+System.out.println(optional.get()); // 输出: Hello
+
+Optional<String> emptyOptional = Optional.empty();
+System.out.println(emptyOptional.orElse("Default")); // 输出: Default
+
+Optional<Integer> optionalInt = Optional.ofNullable(null);
+optionalInt.ifPresent(System.out::println); // 不会输出任何内容
 ```
 
-## 8. 注解的改进
+### 7. 日期和时间 API（java.time）
+Java 8 引入了新的日期和时间 API，替代了旧的 `Date` 和 `Calendar` 类。
 
-### @FunctionalInterface
+**主要类：**
+- `LocalDate` - 表示日期（年月日）
+- `LocalTime` - 表示时间（时分秒）
+- `LocalDateTime` - 表示日期和时间
+- `Instant` - 表示时间戳
+- `Duration` - 表示持续时间
+- `Period` - 表示时间段
+- `ZonedDateTime` - 表示带时区的日期和时间
+
+**示例：**
 ```java
-@FunctionalInterface
-public interface MyInterface {
-    void doSomething();
-}
+// 当前日期和时间
+LocalDate today = LocalDate.now();
+System.out.println(today); // 输出: 2026-01-14
+
+LocalDateTime now = LocalDateTime.now();
+System.out.println(now); // 输出: 2026-01-14T16:29:14.123456
+
+// 创建指定日期
+LocalDate date = LocalDate.of(2026, 1, 14);
+LocalTime time = LocalTime.of(16, 29, 14);
+
+// 日期计算
+LocalDate tomorrow = today.plusDays(1);
+LocalDate nextMonth = today.plusMonths(1);
+
+// 比较
+boolean isAfter = tomorrow.isAfter(today); // true
+boolean isBefore = today.isBefore(tomorrow); // true
+
+// 格式化
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+String formattedDate = now.format(formatter);
+System.out.println(formattedDate); // 输出: 2026-01-14 16:29:14
 ```
 
-### 可重复注解
+### 8. 其他特性
+
+#### 1) 重复注解（Repeatable Annotations）
+允许在同一个元素上多次使用同一个注解。
+
 ```java
-@Repeatable(Tags.class)
-public @interface Tag {
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(Schedules.class)
+public @interface Schedule {
     String value();
 }
 
-@interface Tags {
-    Tag[] value();
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Schedules {
+    Schedule[] value();
 }
 
-// 使用
-@Tag("tag1")
-@Tag("tag2")
-public class MyClass {}
+@Schedule("morning")
+@Schedule("afternoon")
+public void task() {
+    // ...
+}
 ```
 
-### 类型注解
-```java
-// 在类型上使用注解
-List<@NotNull String> list = new ArrayList<>();
-```
-
-## 9. 并行流（Parallel Streams）
-
-Stream API 支持并行处理，充分利用多核处理器。
+#### 2) 类型注解（Type Annotations）
+允许在任何使用类型的地方使用注解。
 
 ```java
-// 创建并行流
-List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
-numbers.parallelStream()
-    .filter(n -> n > 2)
-    .forEach(System.out::println);
-
-// 使用parallel()
-numbers.stream()
-    .parallel()
-    .map(n -> n * n)
-    .forEach(System.out::println);
-
-// 收集结果
-List<Integer> result = numbers.parallelStream()
-    .filter(n -> n > 2)
-    .collect(Collectors.toList());
+@NotEmpty String str = "hello";
+List<@NonNull String> list = new ArrayList<>();
 ```
 
-### 注意事项
-- 并行流不一定比顺序流快
-- 对于小数据集，并行流可能更慢
-- 适合大数据集和计算密集型操作
-- 避免在并行流中修改外部变量
+#### 3) Base64 编码和解码
+Java 8 提供了原生的 Base64 编码和解码支持。
 
-## 10. 其他改进
-
-### Base64编码和解码
 ```java
-// 编码
-String encoded = Base64.getEncoder().encodeToString("hello".getBytes());
+String originalString = "Hello World";
+String encodedString = Base64.getEncoder().encodeToString(originalString.getBytes());
+System.out.println("Encoded: " + encodedString); // Encoded: SGVsbG8gV29ybGQ=
 
-// 解码
-byte[] decoded = Base64.getDecoder().decode(encoded);
+String decodedString = new String(Base64.getDecoder().decode(encodedString));
+System.out.println("Decoded: " + decodedString); // Decoded: Hello World
 ```
 
-### 集合增强
+#### 4) 新的 HashMap 构造函数
 ```java
-// forEach方法
-map.forEach((key, value) -> System.out.println(key + ":" + value));
-
-// removeIf方法
-list.removeIf(n -> n > 5);
-
-// replaceAll方法
-list.replaceAll(n -> n * 2);
-
-// sort方法
-list.sort((a, b) -> a.compareTo(b));
-
-// getOrDefault方法
-map.getOrDefault("key", "default");
+Map<String, Integer> map = new HashMap<String, Integer>() {{
+    put("one", 1);
+    put("two", 2);
+    put("three", 3);
+}};
 ```
 
-### 构造函数引用（编译器改进）
+---
+
+## Java 10 新特性
+
+### 1. 局部变量类型推断（Local Variable Type Inference）
+Java 10 引入了 `var` 关键字，允许编译器自动推断局部变量的类型。
+
+**优点：**
+- 减少冗余的类型声明
+- 提高代码的可读性
+- 编译器进行类型检查，保证类型安全
+
+**示例：**
 ```java
-Supplier<List> supplier = ArrayList::new;
-Function<Integer, List> func = ArrayList::new;
+// Java 9 及之前
+List<Integer> list = new ArrayList<Integer>();
+Map<String, String> map = new HashMap<String, String>();
+
+// Java 10 使用 var
+var list = new ArrayList<Integer>();
+var map = new HashMap<String, String>();
+
+// 其他使用场景
+var message = "Hello World"; // String
+var numbers = new int[]{1, 2, 3, 4, 5}; // int[]
+var stream = list.stream(); // Stream<Integer>
+
+// var 的限制条件
+// 1. 只能用于局部变量，不能用于成员变量、方法参数、返回类型
+// 2. 变量必须在声明时初始化
+// 3. 不能初始化为 null
 ```
+
+### 2. 不可变集合（Unmodifiable Collections）
+Java 10 提供了便捷的方式创建不可变集合。
+
+**示例：**
+```java
+// 创建不可变 List
+List<String> immutableList = List.of("a", "b", "c");
+// immutableList.add("d"); // 会抛出 UnsupportedOperationException
+
+// 创建不可变 Set
+Set<String> immutableSet = Set.of("apple", "banana", "orange");
+
+// 创建不可变 Map
+Map<String, Integer> immutableMap = Map.of("one", 1, "two", 2, "three", 3);
+```
+
+### 3. 垃圾回收改进
+- **G1GC（Garbage First GC）**变为默认垃圾回收器
+- 改进了并发标记的线程数量设置
+- 优化了完整 GC 的性能
+
+### 4. 应用类数据共享（Application Class Data Sharing, AppCDS）
+允许应用程序类被存档到共享归档文件中，在多个 JVM 实例之间共享。
+
+**优点：**
+- 减少应用启动时间
+- 降低内存占用
+
+### 5. 线程本地握手（Thread-Local Handshake）
+允许线程相互请求停止，而无需全局虚拟机安全点。
+
+**优点：**
+- 减少 STW（Stop-The-World）的停顿时间
+- 提高应用的响应性
+
+### 6. 删除的特性
+- **删除 JDK 8 中的 Nashorn JavaScript 引擎**
+- **删除 applet 支持**
+- **删除 JNLP（Java Network Launch Protocol）支持**
+
+### 7. 其他改进
+- **容器感知（Container Awareness）**：JVM 能更好地识别容器环境的资源限制
+- **新增的 API**：`ProcessHandle` 增强，提供获取进程 ID 和进程树的能力
+- **Java 源文件的直接执行**：可以直接运行 `.java` 文件而无需先编译
+
+**示例：**
+```bash
+# Java 10 支持直接运行 Java 文件
+java HelloWorld.java
+```
+
+---
 
 ## 总结
 
-Java 8 引入的特性彻底改变了Java的编程方式：
+Java 8 和 Java 10 都是 Java 语言的重要版本：
 
-1. **Lambda表达式** - 提供简洁的函数式编程支持
-2. **Stream API** - 优雅的数据处理方式
-3. **函数式接口** - 支持函数式编程范式
-4. **Optional** - 优雅处理null值
-5. **新的日期时间API** - 更好的日期时间处理
-6. **接口默认方法** - 增强的接口能力
-7. **方法引用** - 更简洁的函数式表达
+**Java 8 的核心贡献：**
+- 函数式编程支持（Lambda、Stream）
+- 增强的日期和时间 API
+- 更灵活的接口设计
 
-这些特性使得Java代码更加简洁、易读，并且能够充分利用多核处理器的优势。Java 8 是现代Java开发的基石，掌握这些特性对Java开发者来说至关重要。
+**Java 10 的主要改进：**
+- 局部变量类型推断（`var`）简化代码
+- 不可变集合提供更便利的使用方式
+- GC 和容器支持的优化
+- 删除过时特性，为未来的发展铺路
+
+这些特性的累积使得 Java 语言更加现代化、易用，同时保持了向后兼容性。
