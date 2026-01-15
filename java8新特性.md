@@ -1,8 +1,6 @@
-# Java 新特性总览
+# Java 8 新特性
 
-## Java 8 新特性
-
-### 1. Lambda 表达式
+## 1. Lambda 表达式
 Lambda 表达式是 Java 8 最重要的特性之一，它允许用简洁的方式定义匿名函数。
 
 **语法：** `(parameters) -> expression` 或 `(parameters) -> { statements }`
@@ -232,105 +230,13 @@ Map<String, Integer> map = new HashMap<String, Integer>() {{
 }};
 ```
 
----
-
-## Java 10 新特性
-
-### 1. 局部变量类型推断（Local Variable Type Inference）
-Java 10 引入了 `var` 关键字，允许编译器自动推断局部变量的类型。
-
-**优点：**
-- 减少冗余的类型声明
-- 提高代码的可读性
-- 编译器进行类型检查，保证类型安全
-
-**示例：**
-```java
-// Java 9 及之前
-List<Integer> list = new ArrayList<Integer>();
-Map<String, String> map = new HashMap<String, String>();
-
-// Java 10 使用 var
-var list = new ArrayList<Integer>();
-var map = new HashMap<String, String>();
-
-// 其他使用场景
-var message = "Hello World"; // String
-var numbers = new int[]{1, 2, 3, 4, 5}; // int[]
-var stream = list.stream(); // Stream<Integer>
-
-// var 的限制条件
-// 1. 只能用于局部变量，不能用于成员变量、方法参数、返回类型
-// 2. 变量必须在声明时初始化
-// 3. 不能初始化为 null
-```
-
-### 2. 不可变集合（Unmodifiable Collections）
-Java 10 提供了便捷的方式创建不可变集合。
-
-**示例：**
-```java
-// 创建不可变 List
-List<String> immutableList = List.of("a", "b", "c");
-// immutableList.add("d"); // 会抛出 UnsupportedOperationException
-
-// 创建不可变 Set
-Set<String> immutableSet = Set.of("apple", "banana", "orange");
-
-// 创建不可变 Map
-Map<String, Integer> immutableMap = Map.of("one", 1, "two", 2, "three", 3);
-```
-
-### 3. 垃圾回收改进
-- **G1GC（Garbage First GC）**变为默认垃圾回收器
-- 改进了并发标记的线程数量设置
-- 优化了完整 GC 的性能
-
-### 4. 应用类数据共享（Application Class Data Sharing, AppCDS）
-允许应用程序类被存档到共享归档文件中，在多个 JVM 实例之间共享。
-
-**优点：**
-- 减少应用启动时间
-- 降低内存占用
-
-### 5. 线程本地握手（Thread-Local Handshake）
-允许线程相互请求停止，而无需全局虚拟机安全点。
-
-**优点：**
-- 减少 STW（Stop-The-World）的停顿时间
-- 提高应用的响应性
-
-### 6. 删除的特性
-- **删除 JDK 8 中的 Nashorn JavaScript 引擎**
-- **删除 applet 支持**
-- **删除 JNLP（Java Network Launch Protocol）支持**
-
-### 7. 其他改进
-- **容器感知（Container Awareness）**：JVM 能更好地识别容器环境的资源限制
-- **新增的 API**：`ProcessHandle` 增强，提供获取进程 ID 和进程树的能力
-- **Java 源文件的直接执行**：可以直接运行 `.java` 文件而无需先编译
-
-**示例：**
-```bash
-# Java 10 支持直接运行 Java 文件
-java HelloWorld.java
-```
-
----
-
 ## 总结
 
-Java 8 和 Java 10 都是 Java 语言的重要版本：
+Java 8 是 Java 语言的重要里程碑版本，它引入了函数式编程范式，极大地简化了代码编写，提高了开发效率。核心贡献包括：
 
-**Java 8 的核心贡献：**
-- 函数式编程支持（Lambda、Stream）
-- 增强的日期和时间 API
-- 更灵活的接口设计
+- **函数式编程支持**：Lambda 表达式和 Stream API
+- **增强的日期和时间 API**：更直观、更易用的时间处理
+- **更灵活的接口设计**：默认方法和静态方法
+- **更好的空值处理**：Optional 类减少 NullPointerException
 
-**Java 10 的主要改进：**
-- 局部变量类型推断（`var`）简化代码
-- 不可变集合提供更便利的使用方式
-- GC 和容器支持的优化
-- 删除过时特性，为未来的发展铺路
-
-这些特性的累积使得 Java 语言更加现代化、易用，同时保持了向后兼容性。
+这些特性使得 Java 语言更加现代化、易用，同时保持了向后兼容性。
