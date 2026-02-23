@@ -1,0 +1,1 @@
+import{_ as e,o as a,c as t,ae as i}from"./chunks/framework.DLxmGODj.js";const h=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"README.md","filePath":"README.md"}'),n={name:"README.md"};function p(d,s,l,o,r,c){return a(),t("div",null,[...s[0]||(s[0]=[i("",4)])])}const u=e(n,[["render",p]]);export{h as __pageData,u as default};

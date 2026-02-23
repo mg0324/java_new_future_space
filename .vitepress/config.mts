@@ -4,8 +4,8 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Java新特性学习空间",
   description: "Java版本新特性完整指南，从Java 5到Java 21",
-  // GitHub Pages 部署配置 - 使用相对路径
-  base: './',
+  // GitHub Pages 部署配置 - 使用仓库名称作为 base
+  base: '/java_new_future_space/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
